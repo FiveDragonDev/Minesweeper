@@ -1,4 +1,5 @@
 ﻿using Minesweeper.Game.Chunks;
+using Minesweeper.Game.Save;
 
 namespace Minesweeper.Game.World
 {
@@ -64,6 +65,35 @@ namespace Minesweeper.Game.World
                     _chunks[p].IsEmpty)
                     _chunks.Remove(p);
             }
+        }
+
+        internal void Export(SaveData data)
+        {
+            data.Seed = _seed;
+            data.MinePercent = _minePercent;
+
+            foreach (var (cp, chunk) in _chunks)
+            {
+                if (chunk.IsEmpty) continue;
+                data.Chunks[cp.Pack().ToString("x16")] = chunk.ToSave();
+            }
+
+            // foreach (var p in _frontier) data.Frontier.Add(p.Pack().ToString("x16"));
+        }
+
+        internal static World Import(SaveData data)
+        {
+            World w = new(data.Seed, data.MinePercent);
+
+            foreach (var (hex, cs) in data.Chunks)
+            {
+                var cp = ChunkPos.FromPacked(Convert.ToUInt64(hex, 16));
+                w._chunks[cp] = ChunkState.FromSave(cs);
+            }
+
+            // foreach (var hex in data.Frontier) w._frontier.Enqueue(WorldPos.FromPacked(Convert.ToUInt64(hex, 16)));
+
+            return w;
         }
 
         private bool TryEnqueue(WorldPos p)

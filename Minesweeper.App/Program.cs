@@ -1,5 +1,6 @@
 ﻿using Minesweeper.Client.Sfml;
 using Minesweeper.Game;
+using Minesweeper.Game.Save;
 using SFML.System;
 
 namespace Minesweeper.App
@@ -12,10 +13,12 @@ namespace Minesweeper.App
             const int minePercent = 15;
             const float updateInterval = 1f / 20;
             const int cellBudget = 128;
-            const int commandsBudget = 16;
+            const int commandsBudget = 128;
             const int unloadRadius = 4;
 
-            GameState state = new(seed, minePercent);
+            GameState state;
+            if (File.Exists("save.json")) state = SaveSystem.Load("save.json");
+            else state = new(seed, minePercent);
 
             using SfmlWindow window = new(800, 600, "Minesweeper");
 
@@ -52,6 +55,8 @@ namespace Minesweeper.App
 
                 renderer.Render(state);
             }
+
+            SaveSystem.Save(state, "save.json");
         }
     }
 }

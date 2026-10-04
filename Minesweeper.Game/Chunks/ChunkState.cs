@@ -1,5 +1,9 @@
-﻿using Minesweeper.Game.World;
+﻿using Minesweeper.Engine.Utils;
+using Minesweeper.Game.Save;
+using Minesweeper.Game.World;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Minesweeper.Game.Chunks
 {
@@ -18,9 +22,18 @@ namespace Minesweeper.Game.Chunks
 
         private readonly uint[] _revealed = new uint[ChunkTerrain.Size];
         private readonly uint[] _flags = new uint[ChunkTerrain.Size];
-        private readonly uint[] _queued = new uint[ChunkTerrain.Size]; // do not serialize, used for BFS reveal
+        private readonly uint[] _queued = new uint[ChunkTerrain.Size];
 
         private readonly ulong[] _numbers = new ulong[ChunkTerrain.Size * (ChunkTerrain.Size >> ChunkTerrain.SizeShift - 1)];
+
+        public ChunkState() { }
+        private ChunkState(uint[] revealed, uint[] flags, uint[] queued, ulong[] numbers)
+        {
+            _revealed = revealed;
+            _flags = flags;
+            _queued = queued;
+            _numbers = numbers;
+        }
 
         public byte GetNumber(LocalPos l)
         {
@@ -46,7 +59,8 @@ namespace Minesweeper.Game.Chunks
             _numbers[word] = (_numbers[word] & ~(0xFUL << shift)) | ((ulong)number << shift);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] public bool ToggleFlag(LocalPos l)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool ToggleFlag(LocalPos l)
         {
             ref var row = ref _flags[l.Y];
             var shift = 1u << l.X;
@@ -55,5 +69,17 @@ namespace Minesweeper.Game.Chunks
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)] public void MarkQueued(LocalPos l) => _queued[l.Y] |= 1u << l.X;
+
+        internal ChunkSave ToSave() => new()
+        {
+            Revealed = SerializationUtils.ToBase64(_revealed),
+            Flagged = SerializationUtils.ToBase64(_flags),
+            Queued = SerializationUtils.ToBase64(_queued),
+            Numbers = SerializationUtils.ToBase64(_numbers),
+        };
+        internal static ChunkState FromSave(ChunkSave s) => new(
+            SerializationUtils.FromBase64<uint>(s.Revealed), SerializationUtils.FromBase64<uint>(s.Flagged),
+            SerializationUtils.FromBase64<uint>(s.Queued), SerializationUtils.FromBase64<ulong>(s.Numbers));
+
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Minesweeper.Game.Chunks;
 using Minesweeper.Game.Commands;
 using Minesweeper.Game.Player;
+using Minesweeper.Game.Save;
 using Minesweeper.Game.World;
 using System.Numerics;
 
@@ -29,6 +30,33 @@ namespace Minesweeper.Game
             Cursor = new(new(ChunkTerrain.Size >> 1, ChunkTerrain.Size >> 1));
             _cursorController = new(Cursor) { Speed = 8 };
             _commands = new(World);
+        }
+
+        private GameState(World.World world)
+        {
+            World = world;
+            Cursor = new(new(ChunkTerrain.Size >> 1, ChunkTerrain.Size >> 1));
+            _cursorController = new(Cursor) { Speed = 8 };
+            _commands = new(World);
+        }
+
+        public SaveData ToSave()
+        {
+            SaveData data = new()
+            {
+                CursorX = Cursor.Cell.X,
+                CursorY = Cursor.Cell.Y,
+            };
+            World.Export(data);
+            return data;
+        }
+
+        public static GameState FromSave(SaveData data)
+        {
+            World.World world = Game.World.World.Import(data);
+            GameState gs = new(world);
+            gs.Cursor.SetPosition(new(data.CursorX, data.CursorY));
+            return gs;
         }
 
         public void Update(Vector2 axis, IEnumerable<ICommand> commands, float dt, int commandBudget)
