@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Minesweeper.Engine\Minesweeper.Engine.csproj" />
+    <ProjectReference Include="..\Minesweeper.Game\Minesweeper.Game.csproj" />
+    <ProjectReference Include="..\Minesweeper.Input.Abstractions\Minesweeper.Input.Abstractions.csproj" />
+    <ProjectReference Include="..\Minesweeper.Rendering.Abstractions\Minesweeper.Rendering.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

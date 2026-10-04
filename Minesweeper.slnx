@@ -1,0 +1,14 @@
+<Solution>
+  <Project Path="Minesweeper.App/Minesweeper.App.csproj">
+    <BuildDependency Project="Minesweeper.Engine/Minesweeper.Engine.csproj" />
+    <BuildDependency Project="Minesweeper.Rendering.Abstractions/Minesweeper.Rendering.Abstractions.csproj" />
+  </Project>
+  <Project Path="Minesweeper.Client.Console/Minesweeper.Client.Console.csproj" Id="50b98a1d-21f5-462f-aabf-99ea4777c472" />
+  <Project Path="Minesweeper.Client.Sfml/Minesweeper.Client.Sfml.csproj" Id="9bc5e01f-fb0b-4aa4-ac77-c733352b1c1e" />
+  <Project Path="Minesweeper.Engine/Minesweeper.Engine.csproj" Id="8b81eb53-c3a1-4335-943c-d945e1a29c92" />
+  <Project Path="Minesweeper.Game/Minesweeper.Game.csproj" />
+  <Project Path="Minesweeper.Input.Abstractions/Minesweeper.Input.Abstractions.csproj" />
+  <Project Path="Minesweeper.Rendering.Abstractions/Minesweeper.Rendering.Abstractions.csproj" Id="b424191b-9d6c-4302-aae0-a58cfe2c03ad">
+    <BuildDependency Project="Minesweeper.Engine/Minesweeper.Engine.csproj" />
+  </Project>
+</Solution>
