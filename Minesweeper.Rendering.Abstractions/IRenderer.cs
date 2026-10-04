@@ -1,9 +1,9 @@
-﻿using Minesweeper.Game.World;
+﻿using Minesweeper.Game;
 
 namespace Minesweeper.Rendering.Abstractions
 {
     public interface IRenderer
     {
-        void Render(IWorldView worldView);
+        void Render(IGameView gameView);
     }
 }

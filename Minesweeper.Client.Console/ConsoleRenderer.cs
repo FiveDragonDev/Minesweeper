@@ -1,4 +1,5 @@
-﻿using Minesweeper.Game.Chunks;
+﻿using Minesweeper.Game;
+using Minesweeper.Game.Chunks;
 using Minesweeper.Game.World;
 using Minesweeper.Rendering.Abstractions;
 
@@ -11,8 +12,6 @@ namespace Minesweeper.Client.Console
 
         private readonly char[] _buffer = new char[WIDTH * HEIGHT * 2 + HEIGHT - 1];
 
-        private WorldPos _position;
-        
         public ConsoleRenderer()
         {
             _buffer.AsSpan().Fill(' ');
@@ -27,10 +26,11 @@ namespace Minesweeper.Client.Console
             }
         }
 
-        public void SetPosition(WorldPos p) => _position = p;
-
-        public void Render(IWorldView worldView)
+        public void Render(IGameView gameView)
         {
+            var world = gameView.World;
+            var cursor = gameView.Cursor;
+
             System.Console.SetCursorPosition(0, 0);
 
             for (int i = 0; i < HEIGHT; i++)
@@ -41,12 +41,12 @@ namespace Minesweeper.Client.Console
                 for (int j = 0; j < WIDTH; j++)
                 {
                     (int X, int Y) normalized = (j - (WIDTH >> 1), i - (HEIGHT >> 1));
-                    (int X, int Y) = (normalized.X + _position.X, normalized.Y + _position.Y);
+                    (int X, int Y) = (normalized.X + cursor.Cell.X, normalized.Y + cursor.Cell.Y);
                     WorldPos p = new(X, Y);
 
                     int writePos = rowStart + j * 2;
 
-                    var cell = worldView.GetCell(p);
+                    var cell = world.GetCell(p);
 
                     switch (cell.Visual)
                     {
@@ -71,11 +71,11 @@ namespace Minesweeper.Client.Console
                 }
             }
 
-            var currentPosition = ChunkCoords.ToChunk(_position);
+            var cp = ChunkCoords.ToChunk(cursor.Cell);
+            var lp = ChunkCoords.ToLocal(cursor.Cell);
 
-            const string TestText = "DEMO";
-            TestText.CopyTo(_buffer.AsSpan());
-            $"{currentPosition.X} {currentPosition.Y}".CopyTo(_buffer.AsSpan((WIDTH * 2) + 1));
+            $"C: {cp.X} {cp.Y}".CopyTo(_buffer.AsSpan(1));
+            $"L: {lp.X} {lp.Y}".CopyTo(_buffer.AsSpan((WIDTH * 2) + 1));
             _buffer.AsSpan(HEIGHT / 2 * ((WIDTH * 2) + 1) + WIDTH, 1)[0] = 'x';
 
             System.Console.Write(_buffer);

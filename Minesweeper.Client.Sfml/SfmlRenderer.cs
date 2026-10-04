@@ -4,7 +4,7 @@ using Minesweeper.Engine.Utils;
 using SFML.Graphics;
 using SFML.System;
 using Minesweeper.Rendering.Abstractions;
-using System.Numerics;
+using Minesweeper.Game;
 
 namespace Minesweeper.Client.Sfml
 {
@@ -13,9 +13,6 @@ namespace Minesweeper.Client.Sfml
         private const int CellSize = 32;
 
         public float ViewRadius { get; set; } = 7.5f;
-
-        private WorldPos _cellPosition = new(0, 0);
-        private Vector2 _position = new(0, 0);
 
         private readonly RectangleShape _cell = new(new Vector2f(CellSize, CellSize))
         {
@@ -36,21 +33,18 @@ namespace Minesweeper.Client.Sfml
 
         private readonly RenderWindow _window = window.Raw();
 
-        public void SetPosition(Vector2 p, WorldPos c)
+        public void Render(IGameView gameView)
         {
-            _position = p;
-            _cellPosition = c;
-        }
+            var world = gameView.World;
+            var cursor = gameView.Cursor;
 
-        public void Render(IWorldView worldView)
-        {
             _window.Clear(Assets.BackgroundColor);
 
             var halfHeight = ((int)_window.Size.Y / CellSize >> 1) + 1;
             var halfWidth = ((int)_window.Size.X / CellSize >> 1) + 1;
 
-            var truncatedX = _position.X >= 0 ? _position.X - MathF.Floor(_position.X) : _position.X - MathF.Ceiling(_position.X);
-            var truncatedY = _position.Y >= 0 ? _position.Y - MathF.Floor(_position.Y) : _position.Y - MathF.Ceiling(_position.Y);
+            var truncatedX = cursor.Position.X >= 0 ? cursor.Position.X - MathF.Floor(cursor.Position.X) : cursor.Position.X - MathF.Ceiling(cursor.Position.X);
+            var truncatedY = cursor.Position.Y >= 0 ? cursor.Position.Y - MathF.Floor(cursor.Position.Y) : cursor.Position.Y - MathF.Ceiling(cursor.Position.Y);
 
             for (int i = -halfHeight; i <= halfHeight; i++)
             {
@@ -70,13 +64,13 @@ namespace Minesweeper.Client.Sfml
                         continue;
                     }
 
-                    WorldPos cellPos = new(j + _cellPosition.X, i + _cellPosition.Y);
-                    var cellView = worldView.GetCell(cellPos);
+                    WorldPos cellPos = new(j + cursor.Cell.X, i + cursor.Cell.Y);
+                    var cellView = world.GetCell(cellPos);
 
                     switch (cellView.Visual)
                     {
                         case CellVisual.Revealed:
-                            _cell.Texture = cellView.Number == 0 ? Assets.GetEmptyTex(worldView.GetSeed(), cellPos) : Assets.GetTexByNumber(cellView.Number);
+                            _cell.Texture = cellView.Number == 0 ? Assets.GetEmptyTex(world.GetSeed(), cellPos) : Assets.GetTexByNumber(cellView.Number);
                             break;
 
                         case CellVisual.Flagged:
@@ -99,8 +93,8 @@ namespace Minesweeper.Client.Sfml
             _player.Position = new(-truncatedX * CellSize, -truncatedY * CellSize);
             _window.Draw(_player);
 
-            var cp = ChunkCoords.ToChunk(_cellPosition);
-            var lp = ChunkCoords.ToLocal(_cellPosition);
+            var cp = ChunkCoords.ToChunk(cursor.Cell);
+            var lp = ChunkCoords.ToLocal(cursor.Cell);
             _uiText.DisplayedString = $"Chunk: ({cp.X}, {cp.Y})\nLocal: ({lp.X}, {lp.Y})";
             var bounds = _uiText.GetLocalBounds();
             _uiText.Origin = new(-bounds.Left - 10, bounds.Top - 10);

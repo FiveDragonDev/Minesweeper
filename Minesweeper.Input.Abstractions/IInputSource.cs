@@ -7,6 +7,6 @@ namespace Minesweeper.Input.Abstractions
         IEnumerable<InputAction> PollActions();
         Vector2 GetMoveAxis();
 
-        void Update();
+        void Update(float dt);
     }
 }

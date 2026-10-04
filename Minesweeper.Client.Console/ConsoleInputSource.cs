@@ -22,7 +22,7 @@ namespace Minesweeper.Client.Console
             return actions;
         }
 
-        public void Update()
+        public void Update(float dt)
         {
             while (System.Console.KeyAvailable)
             {

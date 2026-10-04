@@ -1,8 +1,5 @@
 ﻿using Minesweeper.Client.Sfml;
-using Minesweeper.Game.Chunks;
-using Minesweeper.Game.Commands;
-using Minesweeper.Game.Player;
-using Minesweeper.Game.World;
+using Minesweeper.Game;
 using SFML.System;
 
 namespace Minesweeper.App
@@ -13,54 +10,47 @@ namespace Minesweeper.App
         {
             const ulong seed = 0;
             const int minePercent = 15;
+            const float updateInterval = 1f / 20;
+            const int cellBudget = 128;
+            const int commandsBudget = 16;
+            const int unloadRadius = 4;
 
-            World world = new(seed, minePercent);
-
-            Cursor cursor = new(new(ChunkTerrain.Size >> 1, ChunkTerrain.Size >> 1));
-            CursorController cursorController = new(cursor)
-            {
-                Speed = 8
-            };
-
-            CommandProcessor commands = new(world);
+            GameState state = new(seed, minePercent);
 
             using SfmlWindow window = new(800, 600, "Minesweeper");
 
-            SfmlInputSource inputSource = new(window);
+            SfmlInputSource input = new(window);
             InputActionMapper mapper = new();
+
+            GameSession session = new(input, state, mapper);
 
             SfmlRenderer renderer = new(window);
 
-            GameSession session = new(inputSource, cursor, cursorController, mapper, commands);
-
             bool running = true;
+            Console.CancelKeyPress += (s, e) => running = false;
             window.Closed += () => running = false;
 
             Clock clock = new();
-            const float updateInterval = 1f / 20;
 
             float accumulator = 0;
             float dt = 0;
-
             while (running)
             {
                 dt = clock.Restart().AsSeconds();
 
                 window.PollEvents();
-
-                session.Tick(dt, 16);
-
-                renderer.SetPosition(cursor.Position, cursor.Cell);
+                input.Update(dt);
 
                 accumulator += dt;
                 while (accumulator >= updateInterval)
                 {
-                    world.Update(128);
-                    world.UnloadFarChunks(ChunkCoords.ToChunk(cursor.Cell), 4);
+                    session.Tick(updateInterval, commandsBudget);
+                    state.TickWorld(cellBudget);
+                    state.UnloadFarChunks(unloadRadius);
                     accumulator -= updateInterval;
                 }
 
-                renderer.Render(world);
+                renderer.Render(state);
             }
         }
     }

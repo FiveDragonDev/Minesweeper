@@ -28,21 +28,21 @@ namespace Minesweeper.Client.Sfml
             return actions;
         }
 
-        public void Update()
+        public void Update(float dt)
         {
             if (_events.IsKeyPressed(Keyboard.Key.Escape)) window.RequestClose();
 
             if (_events.IsKeyDown(Keyboard.Key.E)) _inputActions.Add(InputAction.Reveal);
             else if (_events.IsKeyPressed(Keyboard.Key.Q)) _inputActions.Add(InputAction.Flag);
 
-            Vector2 delta = new(0, 0);
-            if (_events.IsKeyDown(Keyboard.Key.Left) || _events.IsKeyDown(Keyboard.Key.A)) delta -= Vector2.UnitX;
-            if (_events.IsKeyDown(Keyboard.Key.Right) || _events.IsKeyDown(Keyboard.Key.D)) delta += Vector2.UnitX;
+            Vector2 input = new(0, 0);
+            if (_events.IsKeyDown(Keyboard.Key.Left) || _events.IsKeyDown(Keyboard.Key.A)) input -= Vector2.UnitX;
+            if (_events.IsKeyDown(Keyboard.Key.Right) || _events.IsKeyDown(Keyboard.Key.D)) input += Vector2.UnitX;
 
-            if (_events.IsKeyDown(Keyboard.Key.Up) || _events.IsKeyDown(Keyboard.Key.W)) delta -= Vector2.UnitY;
-            if (_events.IsKeyDown(Keyboard.Key.Down) || _events.IsKeyDown(Keyboard.Key.S)) delta += Vector2.UnitY;
+            if (_events.IsKeyDown(Keyboard.Key.Up) || _events.IsKeyDown(Keyboard.Key.W)) input -= Vector2.UnitY;
+            if (_events.IsKeyDown(Keyboard.Key.Down) || _events.IsKeyDown(Keyboard.Key.S)) input += Vector2.UnitY;
 
-            _moveInput += delta;
+            _moveInput += input * dt;
         }
 
         private sealed class EventsListener

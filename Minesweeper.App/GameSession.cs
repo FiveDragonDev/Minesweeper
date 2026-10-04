@@ -1,31 +1,20 @@
-﻿using Minesweeper.Game.Commands;
-using Minesweeper.Game.Player;
+﻿using Minesweeper.Game;
 using Minesweeper.Input.Abstractions;
 
 namespace Minesweeper.App
 {
-    public sealed class GameSession(IInputSource input, ICursor cursor,
-        CursorController cursorController, InputActionMapper mapper, CommandProcessor commands)
+    public sealed class GameSession(IInputSource input, GameState state, InputActionMapper mapper)
     {
         private readonly IInputSource _input = input;
-        private readonly ICursor _cursor = cursor;
-        private readonly CursorController _cursorController = cursorController;
+        private readonly GameState _state = state;
         private readonly InputActionMapper _mapper = mapper;
-        private readonly CommandProcessor _commands = commands;
 
         public void Tick(float dt, int commandBudget)
         {
-            _input.Update();
+            var axis = _input.GetMoveAxis();
+            var commands = _input.PollActions().Select(action => _mapper.Map(action, _state.Cursor.Cell)).Where(cmd => cmd is not null).Select(c => c!).ToList();
 
-            _cursorController.Update(_input.GetMoveAxis(), dt);
-
-            foreach (var action in _input.PollActions())
-            {
-                var cmd = _mapper.Map(action, _cursor.Cell);
-                if (cmd is not null) _commands.Enqueue(cmd);
-            }
-
-            _commands.Process(commandBudget);
+            _state.Update(axis, commands, dt, commandBudget);
         }
     }
 }
