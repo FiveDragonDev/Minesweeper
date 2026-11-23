@@ -12,6 +12,8 @@ namespace Minesweeper.Game.World
         int Version(ChunkPos p);
 
         ulong GetSeed();
+
+        bool IsWalkable(WorldPos p);
     }
     public sealed partial class World : IWorldView
     {
@@ -35,5 +37,23 @@ namespace Minesweeper.Game.World
         public int Version(ChunkPos p) => -1;
 
         public ulong GetSeed() => _seed;
+
+        public bool IsWalkable(WorldPos p)
+        {
+            var cp = ChunkCoords.ToChunk(p);
+            if (_chunks.TryGetValue(cp, out var chunk))
+            {
+                var lp = ChunkCoords.ToLocal(p);
+                if (chunk.IsRevealed(lp)) return true;
+            }
+
+            for (int i = 0; i < Neighbors.Length; i++)
+            {
+                WorldPos np = new(p.X + Neighbors[i].DX, p.Y + Neighbors[i].DY);
+                if (IsRevealed(np)) return true;
+            }
+
+            return false;
+        }
     }
 }

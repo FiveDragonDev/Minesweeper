@@ -21,6 +21,11 @@ namespace Minesweeper.Game.World
             _minePercent = minePercent;
         }
 
+        public void Settle()
+        {
+            while (_frontier.Count > 0) Update(256);
+        }
+
         public void Update(int cellBudget)
         {
             if (_frontier.Count > 0)

@@ -11,9 +11,10 @@ namespace Minesweeper.Game.Player
 
     public sealed class Cursor(WorldPos start) : ICursor
     {
-        public WorldPos Cell => new((int)Position.X, (int)Position.Y);
+        public WorldPos Cell { get; private set; } = start;
         public Vector2 Position { get; private set; } = new(start.X, start.Y);
 
+        internal void SetCell(WorldPos cell) => Cell = cell;
         internal void SetPosition(Vector2 position) => Position = position;
     }
 }

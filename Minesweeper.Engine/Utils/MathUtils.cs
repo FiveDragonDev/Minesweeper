@@ -4,17 +4,7 @@ namespace Minesweeper.Engine.Utils
 {
     public static class MathUtils
     {
-        public static byte Lerp(byte from, byte to, float phase) => (byte)Math.Clamp(Lerp((float)from, to, phase), 0, 255);
-        public static float Lerp(float from, float to, float phase)
-        {
-            if (to < from)
-            {
-                (to, from) = (from, to);
-                phase = 1 - phase;
-            }
-
-            return from + ((to - from) * phase);
-        }
+        public static byte Lerp(byte from, byte to, float phase) => (byte)Math.Clamp(float.Lerp(from, to, phase), 0, 255);
 
         public static Vector2 SmoothDamp(Vector2 current, Vector2 target, ref Vector2 velocity, float smoothTime, float maxSpeed, float deltaTime)
         {

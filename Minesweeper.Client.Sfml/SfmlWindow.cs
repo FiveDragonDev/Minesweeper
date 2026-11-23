@@ -1,10 +1,12 @@
 ﻿using SFML.Graphics;
+using SFML.System;
 
 namespace Minesweeper.Client.Sfml
 {
     public sealed class SfmlWindow : IDisposable
     {
         public event Action? Closed;
+        public event Action<Vector2u>? Resized;
 
         internal uint Frame => _frame;
 
@@ -20,7 +22,11 @@ namespace Minesweeper.Client.Sfml
             _window.SetKeyRepeatEnabled(false);
 
             _window.Closed += (_, _) => Closed?.Invoke();
-            _window.Resized += (_, e) => _window.SetView(new(new(0, 0), new(e.Size.X, e.Size.Y)));
+            _window.Resized += (_, e) =>
+            {
+                _window.SetView(new(new(0, 0), new(e.Size.X, e.Size.Y)));
+                Resized?.Invoke(e.Size);
+            };
         }
 
         public void RequestClose()
@@ -31,7 +37,7 @@ namespace Minesweeper.Client.Sfml
 
         public void PollEvents()
         {
-            Interlocked.Increment(ref _frame);
+            _frame++;
             _window.DispatchEvents();
         }
 

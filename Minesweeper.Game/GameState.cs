@@ -28,7 +28,7 @@ namespace Minesweeper.Game
         {
             World = new(seed, minePercent);
             Cursor = new(new(ChunkTerrain.Size >> 1, ChunkTerrain.Size >> 1));
-            _cursorController = new(Cursor) { Speed = 8 };
+            _cursorController = new(Cursor, World) { Speed = 8 };
             _commands = new(World);
         }
 
@@ -36,8 +36,8 @@ namespace Minesweeper.Game
         {
             World = world;
             Cursor = new(new(ChunkTerrain.Size >> 1, ChunkTerrain.Size >> 1));
-            _cursorController = new(Cursor) { Speed = 8 };
-            _commands = new(World);
+            _cursorController = new(Cursor, world) { Speed = 8 };
+            _commands = new(world);
         }
 
         public SaveData ToSave()
@@ -50,7 +50,6 @@ namespace Minesweeper.Game
             World.Export(data);
             return data;
         }
-
         public static GameState FromSave(SaveData data)
         {
             World.World world = Game.World.World.Import(data);
